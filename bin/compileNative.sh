@@ -1,7 +1,5 @@
 #!/bin/bash
 
-ADAPTER_CLASS_NAME="no.shhsoft.jni.test.JniAdapter"
-ADAPTER_FILE_BASE_NAME="$(echo "$ADAPTER_CLASS_NAME" | tr . _)"
 OBJ_OUTPUT_DIR="target/obj"
 LIB_OUTPUT_DIR="src/main/resources/lib"
 KERNEL="$(uname -s | tr A-Z a-z)"
