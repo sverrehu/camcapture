@@ -12,7 +12,7 @@ then
 fi
 mkdir -p "${OBJ_OUTPUT_DIR}" "${LIB_OUTPUT_DIR}"
 MY_SOURCES="../../src/main/c/*.c ../../src/main/c/*.m"
-(cd "${OBJ_OUTPUT_DIR}"; gcc -c -Wall -Werror -fpic -O3 ${INC} ${MY_SOURCES} ${EXTERNAL_SOURCES})
+(cd "${OBJ_OUTPUT_DIR}"; gcc -c -Wall -Werror -fpic -O3 -arch x86_64 -arch arm64 ${INC} ${MY_SOURCES} ${EXTERNAL_SOURCES})
 gcc -shared \
   -framework Foundation \
   -framework AVFoundation \
