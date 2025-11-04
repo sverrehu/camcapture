@@ -18,22 +18,16 @@ extends DaemonThread {
     private static final long MS_BETWEEN_VIDEO_IMAGE_UPDATES = 200L;
     private final ImageFrame imageFrame;
     private CamCaptureDevice webcam;
-    private ImageAnalyzer imageAnalyzer;
 
     static {
         ImageIO.setUseCache(false);
         //Webcam.setHandleTermSignal(true);
     }
 
-    ImageCaptureThread(final ImageFrame imageFrame, final ImageAnalyzer imageAnalyzer) {
+    ImageCaptureThread(final ImageFrame imageFrame) {
         this.imageFrame = imageFrame;
-        this.imageAnalyzer = imageAnalyzer;
         setVmShouldWaitForThisThread(false);
         setName(ImageCaptureThread.class.getName() + " thread");
-    }
-
-    ImageCaptureThread(final ImageFrame imageFrame) {
-        this(imageFrame, null);
     }
 
     @Override
@@ -107,12 +101,8 @@ extends DaemonThread {
         while (!shouldStop()) {
             final long before = System.currentTimeMillis();
             final BufferedImage image = webcam.getImage();
-            if (imageAnalyzer != null) {
-                imageAnalyzer.analyze(image);
-            }
             imageFrame.setImage(image);
             final long timeToSleep = MS_BETWEEN_VIDEO_IMAGE_UPDATES - (System.currentTimeMillis() - before);
-//            LOG.info("Time to sleep (ms): " + timeToSleep);
             if (timeToSleep > 0L) {
                 try {
                     Thread.sleep(timeToSleep);
