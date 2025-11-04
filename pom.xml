@@ -61,7 +61,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${basedir}/bin/compileNative.sh</executable>
+                            <executable>${basedir}/bin/compileNativeMac.sh</executable>
                         </configuration>
                     </execution>
                 </executions>

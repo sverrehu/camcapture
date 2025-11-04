@@ -10,7 +10,7 @@ if test "${KERNEL}" = "darwin"
 then
   SO="dylib"
 fi
-mkdir -p "${LIB_OUTPUT_DIR}"
+mkdir -p "${OBJ_OUTPUT_DIR}" "${LIB_OUTPUT_DIR}"
 MY_SOURCES="../../src/main/c/*.c ../../src/main/c/*.m"
 for ARCH in x86_64 arm64
 do
