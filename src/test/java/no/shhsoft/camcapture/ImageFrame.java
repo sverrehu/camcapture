@@ -1,7 +1,14 @@
 package no.shhsoft.camcapture;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import java.awt.BorderLayout;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.geom.Rectangle2D;
@@ -15,13 +22,14 @@ import java.util.Locale;
 public final class ImageFrame
 extends JFrame {
 
+    private static final int INITIAL_WIDTH = 640;
+    private static final int INITIAL_HEIGHT = 360;
     private final MyCanvas canvas;
 
     private static final class MyCanvas
     extends Canvas
     implements ComponentListener {
 
-        private static final long serialVersionUID = 1L;
         private BufferedImage image;
         private Dimension imageDimension;
         private double scale = 1.0;
@@ -32,7 +40,7 @@ extends JFrame {
 
         MyCanvas() {
             addComponentListener(this);
-            setSize(new Dimension(640, 480));
+            setSize(new Dimension(INITIAL_WIDTH, INITIAL_HEIGHT));
         }
 
         private synchronized void init() {
@@ -44,7 +52,7 @@ extends JFrame {
             initDone = true;
         }
 
-        synchronized void setRectangle(final Rectangle rectangle) {
+        synchronized void setViewSize(final Rectangle rectangle) {
             this.rectangle = rectangle;
             updateScale();
         }
@@ -53,34 +61,33 @@ extends JFrame {
             this.image = image;
             this.imageDimension = image == null ? null : new Dimension(image.getWidth(), image.getHeight());
             if (initDone && rectangle == null) {
-                setRectangle(createRectangle(getWidth(), getHeight()));
+                setViewSize(createRectangle(getWidth(), getHeight()));
             }
             updateScale();
         }
 
         synchronized void flush() {
-            if (bufferStrategy == null) {
-                return;
-            }
-            if (rectangle == null || image == null) {
+            if (bufferStrategy == null || rectangle == null) {
                 return;
             }
             do {
                 do {
                     final Graphics2D g2 = (Graphics2D) bufferStrategy.getDrawGraphics();
-                    g2.setColor(Color.BLACK);
+                    g2.setColor(Color.WHITE);
                     g2.fillRect(0, 0, getWidth(), getHeight());
-                    g2.drawImage(image, rectangle.x, rectangle.y, (int) (scale * image.getWidth()), (int) (scale * image.getHeight()), null);
-
-                    if (System.currentTimeMillis() < scaleVisibleUntil) {
-                        final String text = String.format(Locale.US, "%.1f%%", Double.valueOf(scale * 100.0));
-                        g2.setColor(Color.WHITE);
-                        final Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(text, g2);
-                        final int textX = (getWidth() - (int) stringBounds.getWidth()) / 2;
-                        final int textY = (getHeight() - (int) stringBounds.getHeight()) / 2;
-                        g2.drawString(text, textX, textY + g2.getFontMetrics().getMaxAscent());
+                    if (image != null) {
+                        final int scaledWidth = (int) (scale * image.getWidth());
+                        final int scaledHeight = (int) (scale * image.getHeight());
+                        g2.drawImage(image, rectangle.x, rectangle.y, scaledWidth, scaledHeight, null);
+                        if (System.currentTimeMillis() < scaleVisibleUntil) {
+                            final String text = String.format(Locale.US, "%dx%d -> %dx%d", image.getWidth(), image.getHeight(), scaledWidth, scaledHeight);
+                            g2.setColor(Color.WHITE);
+                            final Rectangle2D stringBounds = g2.getFontMetrics().getStringBounds(text, g2);
+                            final int textX = (getWidth() - (int) stringBounds.getWidth()) / 2;
+                            final int textY = (getHeight() - (int) stringBounds.getHeight()) / 2;
+                            g2.drawString(text, textX, textY + g2.getFontMetrics().getMaxAscent());
+                        }
                     }
-
                     g2.dispose();
                 } while (bufferStrategy.contentsRestored());
                 bufferStrategy.show();
@@ -109,7 +116,7 @@ extends JFrame {
         public void componentResized(final ComponentEvent e) {
             init();
             final Rectangle rectangle = createRectangle(getWidth(), getHeight());
-            setRectangle(rectangle);
+            setViewSize(rectangle);
             flush();
         }
 
@@ -152,20 +159,12 @@ extends JFrame {
 
     }
 
-    private void shutdown() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.exit(0);
-            }
-        }).start();
-    }
-
     ImageFrame() {
+        super("video");
         canvas = new MyCanvas();
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(canvas, BorderLayout.CENTER);
-        setSize(640, 480);
+        setSize(INITIAL_WIDTH, INITIAL_HEIGHT);
         pack();
     }
 
