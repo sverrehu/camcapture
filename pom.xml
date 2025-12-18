@@ -19,7 +19,7 @@
         <dependency>
             <groupId>no.shhsoft</groupId>
             <artifactId>shhsoft4-utils</artifactId>
-            <version>0.3.0</version>
+            <version>0.5.0</version>
             <scope>compile</scope>
         </dependency>
 
